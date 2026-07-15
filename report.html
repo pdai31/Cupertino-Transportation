@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report a Hazard — Cupertino Safe Streets</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="container">
+    <h1>⚠ Report a Hazard</h1>
+    <p>Seen an unsafe intersection, broken sidewalk, or bike lane problem? Tell us in under two minutes. Every report helps the city see what residents experience.</p>
+  </div>
+</header>
+
+<section class="page-section">
+  <div class="container" style="max-width:860px">
+    <div id="successMsg" class="alert-success" style="display:none">
+      ✅ <strong>Thank you!</strong> Your report has been submitted and now appears on the <a href="map.html">Hazard Map</a>. Report another below, or <a href="map.html">view the map</a>.
+    </div>
+
+    <form id="hazardForm" class="card" style="padding:32px">
+      <div class="form-group">
+        <label>1. What type of hazard is it?</label>
+        <div class="radio-row" id="catRow"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="title">2. Give it a short title</label>
+        <input type="text" id="title" required maxlength="90" placeholder="e.g., Faded crosswalk at McClellan Rd & Bubb Rd">
+      </div>
+
+      <div class="form-group">
+        <label for="desc">3. Describe the hazard <span class="hint">— what happens, when, and who is affected?</span></label>
+        <textarea id="desc" required placeholder="Describe what you observed. Include time of day, how often it happens, and who is at risk (students, cyclists, seniors...)."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>4. Pin the location on the map <span class="hint">— click the exact spot</span></label>
+        <div id="pickMap"></div>
+        <p class="hint" id="pinStatus" style="margin-top:6px">📍 No location selected yet — click the map to drop a pin.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="neighborhood">5. Neighborhood</label>
+        <select id="neighborhood" required><option value="">Select a neighborhood…</option></select>
+      </div>
+
+      <div class="form-group">
+        <label for="photo">6. Upload a photo <span class="hint">(optional)</span></label>
+        <input type="file" id="photo" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label for="date">7. When did you observe it?</label>
+        <input type="date" id="date" required>
+      </div>
+
+      <div class="form-group">
+        <label for="contact">8. Contact info <span class="hint">(optional — only if you're OK with follow-up questions)</span></label>
+        <input type="email" id="contact" placeholder="you@example.com">
+      </div>
+
+      <button type="submit" class="btn btn-accent" style="width:100%">Submit Hazard Report</button>
+      <p class="hint" style="text-align:center;margin-top:12px">Reports are public (contact info is never shown). Demo note: reports are stored in your browser.</p>
+    </form>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // category chips
+  const row = document.getElementById("catRow");
+  HAZARD_CATEGORIES.forEach((c, i) => {
+    row.insertAdjacentHTML("beforeend",
+      `<label><input type="radio" name="cat" value="${c}" ${i === 0 ? "checked" : ""}><span>${CATEGORY_ICONS[c]} ${c}</span></label>`);
+  });
+  // neighborhoods
+  const sel = document.getElementById("neighborhood");
+  NEIGHBORHOODS.forEach(n => sel.insertAdjacentHTML("beforeend", `<option>${n}</option>`));
+  // default date = today
+  document.getElementById("date").valueAsDate = new Date();
+
+  // pick map
+  const map = L.map("pickMap").setView([37.3187, -122.0322], 13);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { attribution: "© OpenStreetMap contributors" }).addTo(map);
+  let pin = null, lat = null, lng = null;
+  map.on("click", e => {
+    lat = e.latlng.lat; lng = e.latlng.lng;
+    if (pin) pin.setLatLng(e.latlng); else pin = L.marker(e.latlng).addTo(map);
+    document.getElementById("pinStatus").innerHTML =
+      "✅ Location selected: " + lat.toFixed(4) + ", " + lng.toFixed(4);
+  });
+
+  document.getElementById("hazardForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (lat === null) { alert("Please click the map to pin the hazard location."); return; }
+    Store.addHazard({
+      category: document.querySelector('input[name=cat]:checked').value,
+      title: document.getElementById("title").value.trim(),
+      description: document.getElementById("desc").value.trim(),
+      lat: lat, lng: lng,
+      neighborhood: sel.value,
+      date: document.getElementById("date").value,
+      hasPhoto: !!document.getElementById("photo").files.length
+    });
+    this.reset();
+    document.getElementById("date").valueAsDate = new Date();
+    if (pin) { map.removeLayer(pin); pin = null; }
+    lat = lng = null;
+    document.getElementById("pinStatus").innerHTML = "📍 No location selected yet — click the map to drop a pin.";
+    const ok = document.getElementById("successMsg");
+    ok.style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+});
+</script>
+</body>
+</html>

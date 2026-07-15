@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hazard Map — Cupertino Safe Streets</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<style>
+  .hazard-popup h4 { margin-bottom: 4px; color: var(--primary-dark); }
+  .hazard-popup .meta { font-size: 0.8rem; color: var(--text-light); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="container">
+    <h1>🗺 Interactive Hazard Map</h1>
+    <p>Every hazard reported by the community, in one place. Click a marker for details, confirm hazards you've experienced, and filter to explore.</p>
+  </div>
+</header>
+
+<section class="page-section">
+  <div class="container">
+    <div class="map-filters">
+      <div class="form-group">
+        <label for="fCat">Category</label>
+        <select id="fCat"><option value="">All categories</option></select>
+      </div>
+      <div class="form-group">
+        <label for="fHood">Neighborhood</label>
+        <select id="fHood"><option value="">All neighborhoods</option></select>
+      </div>
+      <div class="form-group">
+        <label for="fFrom">Reported after</label>
+        <input type="date" id="fFrom">
+      </div>
+      <div class="form-group">
+        <label for="fSearch">Search</label>
+        <input type="text" id="fSearch" placeholder="Search title or street…">
+      </div>
+      <div class="form-group" style="flex:0">
+        <button class="btn btn-outline-dark btn-sm" id="fReset" type="button">Reset</button>
+      </div>
+    </div>
+    <p class="section-sub" id="countLine"></p>
+    <div id="map"></div>
+    <p class="hint" style="margin-top:10px;color:var(--text-light);font-size:0.85rem">Something missing? <a href="report.html">Report a new hazard</a> and it will appear here immediately.</p>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const fCat = document.getElementById("fCat"), fHood = document.getElementById("fHood"),
+        fFrom = document.getElementById("fFrom"), fSearch = document.getElementById("fSearch");
+  HAZARD_CATEGORIES.forEach(c => fCat.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+  NEIGHBORHOODS.forEach(n => fHood.insertAdjacentHTML("beforeend", `<option>${n}</option>`));
+
+  const map = L.map("map").setView([37.3187, -122.0322], 13);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { attribution: "© OpenStreetMap contributors" }).addTo(map);
+  let cluster = L.markerClusterGroup();
+  map.addLayer(cluster);
+
+  function popupHTML(h) {
+    const stars = starString(credibilityScore(h));
+    const confirmed = Store.hasConfirmed(h.id);
+    return `<div class="hazard-popup" style="min-width:230px">
+      <h4>${CATEGORY_ICONS[h.category] || "📍"} ${h.title}</h4>
+      <div class="meta">${h.category} · ${h.neighborhood} · ${h.date}</div>
+      <p style="font-size:0.87rem;margin-bottom:8px">${h.description}</p>
+      <div style="font-size:0.85rem;margin-bottom:8px">
+        ${severityBadge(h.severity)} &nbsp;
+        <span class="stars">${stars}</span><br>
+        Reports: <strong>${h.reports}</strong> · Confirmed by residents: <strong id="cf-${h.id}">${h.confirms}</strong>
+      </div>
+      <button class="confirm-btn" data-id="${h.id}" ${confirmed ? "disabled" : ""}>
+        ${confirmed ? "✓ You confirmed this" : "👍 I've experienced this too"}
+      </button>
+    </div>`;
+  }
+
+  function render() {
+    cluster.clearLayers();
+    const q = fSearch.value.trim().toLowerCase();
+    const list = Store.allHazards().filter(h =>
+      (!fCat.value || h.category === fCat.value) &&
+      (!fHood.value || h.neighborhood === fHood.value) &&
+      (!fFrom.value || h.date >= fFrom.value) &&
+      (!q || (h.title + " " + h.description).toLowerCase().includes(q))
+    );
+    list.forEach(h => {
+      const m = L.marker([h.lat, h.lng]);
+      m.bindPopup(popupHTML(h));
+      cluster.addLayer(m);
+    });
+    document.getElementById("countLine").innerHTML =
+      `Showing <strong>${list.length}</strong> hazard location${list.length === 1 ? "" : "s"}.`;
+  }
+
+  [fCat, fHood, fFrom].forEach(el => el.addEventListener("change", render));
+  fSearch.addEventListener("input", render);
+  document.getElementById("fReset").addEventListener("click", () => {
+    fCat.value = fHood.value = fFrom.value = fSearch.value = ""; render();
+  });
+
+  // confirm buttons (event delegation on popups)
+  map.on("popupopen", function (e) {
+    const btn = e.popup.getElement().querySelector(".confirm-btn");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      const id = this.dataset.id;
+      if (Store.hasConfirmed(id)) return;
+      Store.confirm(id);
+      Store.markConfirmed(id);
+      document.getElementById("cf-" + id).textContent =
+        parseInt(document.getElementById("cf-" + id).textContent) + 1;
+      this.disabled = true;
+      this.textContent = "✓ You confirmed this";
+    });
+  });
+
+  render();
+});
+</script>
+</body>
+</html>
