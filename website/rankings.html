@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hazard Rankings — Cupertino Safe Streets</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="container">
+    <h1>🏆 Hazard Ranking & Verification</h1>
+    <p>Community-verified hazards, ranked by credibility and severity — so the city knows which issues deserve attention first. Confirm hazards you've experienced to boost their priority.</p>
+  </div>
+</header>
+
+<section class="page-section">
+  <div class="container">
+    <div class="grid grid-3" style="margin-bottom:30px">
+      <div class="card stat-card"><div class="num" id="sHigh">–</div><div class="label">High-Priority Hazards</div></div>
+      <div class="card stat-card"><div class="num" id="sConfirms">–</div><div class="label">Total Resident Confirmations</div></div>
+      <div class="card stat-card"><div class="num" id="sReports">–</div><div class="label">Total Reports Filed</div></div>
+    </div>
+
+    <h2 class="section-title">Ranked Hazard List</h2>
+    <p class="section-sub">Sorted by credibility score (reports × 2 + confirmations). Click 👍 if you've experienced a hazard too.</p>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Hazard</th><th>Category</th><th>Reports</th><th>Confirmed</th><th>Credibility</th><th>Priority</th><th>Verify</th></tr>
+        </thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function render() {
+    const list = Store.allHazards()
+      .map(h => ({ ...h, score: h.reports * 2 + h.confirms }))
+      .sort((a, b) => b.score - a.score);
+
+    document.getElementById("sHigh").textContent = list.filter(h => h.severity === "High").length;
+    document.getElementById("sConfirms").textContent = list.reduce((s, h) => s + h.confirms, 0);
+    document.getElementById("sReports").textContent = list.reduce((s, h) => s + h.reports, 0);
+
+    const tb = document.getElementById("rankBody");
+    tb.innerHTML = "";
+    list.forEach((h, i) => {
+      const confirmed = Store.hasConfirmed(h.id);
+      tb.insertAdjacentHTML("beforeend", `<tr>
+        <td><strong>${i + 1}</strong></td>
+        <td><strong>${h.title}</strong><br><span style="font-size:0.8rem;color:var(--text-light)">${h.neighborhood} · ${h.date}</span></td>
+        <td><span class="badge badge-cat">${CATEGORY_ICONS[h.category] || ""} ${h.category}</span></td>
+        <td style="text-align:center">${h.reports}</td>
+        <td style="text-align:center">${h.confirms}</td>
+        <td><span class="stars">${starString(credibilityScore(h))}</span></td>
+        <td>${severityBadge(h.severity)}</td>
+        <td><button class="confirm-btn" data-id="${h.id}" ${confirmed ? "disabled" : ""}>${confirmed ? "✓ Confirmed" : "👍 Me too"}</button></td>
+      </tr>`);
+    });
+
+    tb.querySelectorAll(".confirm-btn").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const id = this.dataset.id;
+        if (Store.hasConfirmed(id)) return;
+        Store.confirm(id);
+        Store.markConfirmed(id);
+        render();
+      });
+    });
+  }
+  render();
+});
+</script>
+</body>
+</html>

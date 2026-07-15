@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Dashboard — Cupertino Safe Streets</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="container">
+    <h1>📊 Research Dashboard</h1>
+    <p>Visualizing what the community has told us — through hazard reports, surveys, and interviews. This data feeds our final Transportation Safety Report.</p>
+  </div>
+</header>
+
+<section class="page-section">
+  <div class="container">
+    <div class="grid grid-2" style="margin-bottom:22px">
+      <div class="chart-box"><h3>Hazards by Category</h3><canvas id="cCat"></canvas></div>
+      <div class="chart-box"><h3>Hazard Severity Distribution</h3><canvas id="cSev"></canvas></div>
+    </div>
+    <div class="grid grid-2" style="margin-bottom:22px">
+      <div class="chart-box"><h3>How Residents Get Around (Survey)</h3><canvas id="cMode"></canvas></div>
+      <div class="chart-box"><h3>Top Safety Concerns (Survey)</h3><canvas id="cConcern"></canvas></div>
+    </div>
+    <div class="grid grid-2" style="margin-bottom:34px">
+      <div class="chart-box"><h3>Survey Respondents by Age</h3><canvas id="cAge"></canvas></div>
+      <div class="chart-box"><h3>Walking & Biking Frequency</h3><canvas id="cFreq"></canvas></div>
+    </div>
+
+    <h2 class="section-title">Top Hazard Locations</h2>
+    <p class="section-sub">The most-confirmed hazards across Cupertino, from community reports.</p>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>Location</th><th>Category</th><th>Neighborhood</th><th>Reports</th><th>Confirmed</th><th>Priority</th></tr></thead>
+        <tbody id="topBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const P = "#1a6b54", A = "#f5a623", colors = ["#1a6b54", "#f5a623", "#4a90d9", "#d9534f", "#8e6bbf", "#5cb85c", "#8a97a3"];
+  const all = Store.allHazards();
+
+  // hazards by category
+  const catCount = {};
+  HAZARD_CATEGORIES.forEach(c => catCount[c] = 0);
+  all.forEach(h => catCount[h.category] = (catCount[h.category] || 0) + h.reports);
+  new Chart(cCat, { type: "bar",
+    data: { labels: Object.keys(catCount), datasets: [{ data: Object.values(catCount), backgroundColor: P, borderRadius: 6 }] },
+    options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { size: 10 } } } } } });
+
+  // severity
+  const sev = { High: 0, Medium: 0, Low: 0 };
+  all.forEach(h => sev[h.severity]++);
+  new Chart(cSev, { type: "doughnut",
+    data: { labels: Object.keys(sev), datasets: [{ data: Object.values(sev), backgroundColor: ["#d9534f", "#f5a623", "#5cb85c"] }] } });
+
+  new Chart(cMode, { type: "pie",
+    data: { labels: ["Car", "Bike", "Walk", "Scooter/e-bike", "Transit"], datasets: [{ data: [52, 21, 15, 8, 4], backgroundColor: colors }] } });
+
+  new Chart(cConcern, { type: "bar",
+    data: { labels: ["Unsafe intersections", "Blocked bike lanes", "Poor lighting", "Speeding traffic", "Broken sidewalks"],
+      datasets: [{ data: [46, 38, 29, 27, 18], backgroundColor: A, borderRadius: 6 }] },
+    options: { indexAxis: "y", plugins: { legend: { display: false } } } });
+
+  new Chart(cAge, { type: "bar",
+    data: { labels: ["Under 18", "18–30", "31–45", "46–60", "60+"], datasets: [{ data: [31, 18, 34, 27, 18], backgroundColor: P, borderRadius: 6 }] },
+    options: { plugins: { legend: { display: false } } } });
+
+  new Chart(cFreq, { type: "bar",
+    data: { labels: ["Daily", "Few times/week", "Weekly", "Rarely", "Never"],
+      datasets: [
+        { label: "Walking", data: [42, 31, 22, 24, 9], backgroundColor: P, borderRadius: 5 },
+        { label: "Biking", data: [19, 24, 26, 35, 24], backgroundColor: A, borderRadius: 5 }
+      ] } });
+
+  // top locations table
+  const top = all.map(h => ({ ...h, score: h.reports * 2 + h.confirms })).sort((a, b) => b.score - a.score).slice(0, 6);
+  const tb = document.getElementById("topBody");
+  top.forEach(h => tb.insertAdjacentHTML("beforeend", `<tr>
+    <td><strong>${h.title}</strong></td>
+    <td>${CATEGORY_ICONS[h.category] || ""} ${h.category}</td>
+    <td>${h.neighborhood}</td>
+    <td style="text-align:center">${h.reports}</td>
+    <td style="text-align:center">${h.confirms}</td>
+    <td>${severityBadge(h.severity)}</td></tr>`));
+});
+</script>
+</body>
+</html>
