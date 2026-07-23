@@ -129,3 +129,119 @@ function severityBadge(s) {
   const cls = s === "High" ? "badge-high" : s === "Medium" ? "badge-medium" : "badge-low";
   return '<span class="badge ' + cls + '">' + s + '</span>';
 }
+const teams = {
+
+  leadership: {
+    title : "Advisor & Project Leadership",
+    icon : "🧭",
+    description : "Overall coordination and project management",
+
+    members: [
+      {
+        name: "Dr. Peng Dai",
+        role : "Advisor",
+        bio : "Guides the project, handles coordination with the city"
+      }
+    ]
+  },
+  technology: {
+    title : "Technology Team",
+    icon : "💻",
+    description : "Manages the website, database, and user interface",
+
+    members: [
+      {
+        name: "Kevin Yuan",
+        role : "President",
+        bio : "Leads the technology team, oversees website development and data management",
+      },
+
+      {
+        name: "Ted Chu",
+        role : "Director for web development",
+        bio : "Oversees the development and maintenance of the website and user interface",
+      },
+
+      {
+        name: "Alexander Liu",
+        role : "Vice Director for web development",
+        bio : "Assists in web development and ensures the website is user-friendly and functional",
+      },
+
+      {
+        name: "Ryan Hsueh",
+        role : "Director for data collection and analysis",
+        bio : "Leads the research team in collecting and analyzing data on transportation hazards",
+      },
+
+      {
+        name: "Liliana Chai",
+        role : "Director for web and graphic design",
+        bio : "Responsible for the visual design of the website and graphics used in hazard reporting",
+      },
+
+      {
+        name: "Lilian Ren",
+        role : "Vice Director for graphic design",
+        bio : "Assists in graphic design, ensuring the website is visually appealing and accessible",
+      }
+    ]
+  },
+  research: {
+    title : "Research & Data Team",
+    icon : "🔬",
+    description : "Conducts research on transportation safety and hazard reporting",
+
+    members: [
+    ]
+  },
+  outreach: {
+    title : "Outreach & Media Team",
+    icon : "📣",
+    description : "Handles community outreach.",
+
+    members: [
+      {
+        name: "Grant Yuan",
+        role : "President",
+        bio : "Leads the outreach team, coordinates with local organizations and schools to promote hazard reporting",
+      },
+
+      {
+        name: "Valdus Cheng",
+        role : "Director of Research",
+        bio : "Conducts research on public opinion, analyzes data, and prepares reports for the team",
+      },
+
+      {
+        name: "Haoxuan",
+        role : "Director of Research",
+        bio : "Conducts research on transportation safety, analyzes data, and prepares reports for the team",
+      },
+
+      {
+        name: "Liliana Chai",
+        role : "Director of Community Outreach",
+        bio : "Organizes community events, workshops, and campaigns to raise awareness about transportation hazards and safety",
+      },
+
+      {
+        name: "Ryan Hsueh",
+        role : "Director of Interviews",
+        bio : "Conducts interviews with community members, stakeholders, and experts to gather insights on transportation safety and hazard reporting",
+      },
+
+      {
+        name: "Barry Wu",
+        role : "Director of Digital Communications",
+        bio : "Manages the team's social media presence, website content, and digital campaigns to engage the community and promote hazard reporting",
+      },
+
+      {
+        name: "Zimeng Sun",
+        role : "Director of Large Event (BikeFest)",
+        bio : "Organizes and manages large-scale events, such as BikeFest, to promote cycling safety and community engagement",
+      }
+    ]
+  }
+}

@@ -204,3 +204,18 @@ footer a:hover { color: var(--accent); }
   .footer-inner { grid-template-columns: 1fr; }
   #map, .map-box { height: 420px; }
 }
+.team-link{
+    display:block;
+    color:inherit;
+    text-decoration:none;
+}
+
+.team-link .card{
+    cursor:pointer;
+    transition:.25s;
+}
+
+.team-link:hover .card{
+    transform:translateY(-6px);
+    box-shadow:0 12px 25px rgba(0,0,0,.15);
+}
