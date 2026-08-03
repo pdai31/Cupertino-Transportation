@@ -6,7 +6,7 @@
   <nav class="navbar">
     <div class="nav-inner">
       <a class="brand" href="index.html">
-        <span class="logo">🚸</span>
+        <span class="logo"><img src="ypsi logo.png" alt="Logo" class="logo"></span>
         <span>Cupertino Safe Streets<br><small>YPSI Transportation Safety Initiative</small></span>
       </a>
       <button class="hamburger" aria-label="Menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
