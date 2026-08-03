@@ -259,6 +259,15 @@ const newsData = [
 },
 
 {
+    date: "August 2, 2026",
+    type: "Website",
+    title: "News & Updates Page Launched",
+    summary: "Stay informed with the latest news, events, safety campaigns and Website Updates related to transportation in Cupertino.",
+    link: "news.html",
+    button: "View Page"
+},
+
+{
     date: "July 31, 2026",
     type: "Transportation",
     title: "Back-to-School Safety Campaign",
@@ -268,21 +277,12 @@ const newsData = [
 },
 
 {
-    date: "July 28, 2026",
+    date: "July 23, 2026",
     type: "Website",
-    title: "Interactive Route Maps Added",
-    summary: "Visitors can now access Cupertino's official Suggested Routes to School maps directly from our website.",
-    link: "map.html",
-    button: "View Map"
-},
-
-{
-    date: "July 20, 2026",
-    type: "Community",
-    title: "Transportation Safety Survey Available",
-    summary: "Share your experiences walking, biking, driving, or using public transit to help identify transportation safety concerns.",
-    link: "survey.html",
-    button: "Take Survey"
+    title: "Our Team Page Updated",
+    summary: "Learn more about the dedicated individuals behind the YPSI Transportation Safety Initiative.",
+    link: "team.html",
+    button: "View Page"
 }
 
 ];
