@@ -97,6 +97,19 @@ a { color: var(--primary); }
 .btn-outline-dark { background: transparent; color: var(--primary-dark); border-color: var(--primary); }
 .btn-sm { padding: 7px 16px; font-size: 0.85rem; }
 
+
+.btn-resource {
+    background: var(--primary);
+    color: #fff;
+    border: 2px solid var(--primary);
+}
+
+.btn-resource:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: #fff;
+}
+
 /* ---------- Cards & grids ---------- */
 .grid { display: grid; gap: 22px; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }

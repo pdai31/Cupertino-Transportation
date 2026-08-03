@@ -129,6 +129,7 @@ function severityBadge(s) {
   const cls = s === "High" ? "badge-high" : s === "Medium" ? "badge-medium" : "badge-low";
   return '<span class="badge ' + cls + '">' + s + '</span>';
 }
+/* Update "Our Team" Data Here */
 const teams = {
 
   leadership: {
@@ -245,3 +246,43 @@ const teams = {
     ]
   }
 }
+/* Update "News & Updates" Data Here */
+const newsData = [
+
+{
+    date: "August 3, 2026",
+    type: "Website",
+    title: "Safety Education Page Expanded",
+    summary: "Added official Safe Routes to School resources, downloadable safety guides, educational videos, and interactive route planning links.",
+    link: "education.html",
+    button: "View Page"
+},
+
+{
+    date: "July 31, 2026",
+    type: "Transportation",
+    title: "Back-to-School Safety Campaign",
+    summary: "Cupertino's Safe Routes to School program reminds drivers to slow down near schools and encourages students to walk and bike safely.",
+    link: "https://www.cupertino.gov/Your-City/Departments/Public-Works/Transportation-Mobility/Safe-Routes-to-School-SR2S",
+    button: "Official Source"
+},
+
+{
+    date: "July 28, 2026",
+    type: "Website",
+    title: "Interactive Route Maps Added",
+    summary: "Visitors can now access Cupertino's official Suggested Routes to School maps directly from our website.",
+    link: "map.html",
+    button: "View Map"
+},
+
+{
+    date: "July 20, 2026",
+    type: "Community",
+    title: "Transportation Safety Survey Available",
+    summary: "Share your experiences walking, biking, driving, or using public transit to help identify transportation safety concerns.",
+    link: "survey.html",
+    button: "Take Survey"
+}
+
+];
